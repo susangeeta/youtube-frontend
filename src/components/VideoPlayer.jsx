@@ -12,6 +12,7 @@ const VideoPlayer = ({ video }) => {
   const [likes, setLikes] = useState(video?.likes || 0);
   const [dislikes, setDislikes] = useState(video?.dislikes || 0);
   const [recommendedVideos, setRecommendedVideos] = useState([]);
+  console.log(recommendedVideos);
 
   const fetchRecommendedVideos = async () => {
     try {
@@ -112,16 +113,28 @@ const VideoPlayer = ({ video }) => {
   return (
     <div className="flex flex-col md:flex-row gap-6 p-3 md:p-6 bg-[#0f0f0f] min-h-screen">
       <div className="flex-1">
-        <div className="relative w-full bg-black rounded-xl overflow-hidden mb-4">
-          <video
-            controls
-            autoPlay
-            className="w-full aspect-video"
-            src={video.videoUrl}
-            key={video._id}
-          >
-            Your browser does not support the video tag.
-          </video>
+        <div className="relative w-full aspect-video mb-4 rounded-xl overflow-hidden">
+          {video.videoUrl.includes("youtube.com") ||
+          video.videoUrl.includes("youtu.be") ? (
+            <iframe
+              src={
+                video.videoUrl.includes("watch?v=")
+                  ? video.videoUrl.replace("watch?v=", "embed/")
+                  : "https://www.youtube.com/embed/" +
+                    video.videoUrl.split("/").pop()
+              }
+              className="w-full h-full"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            ></iframe>
+          ) : (
+            <video
+              controls
+              autoPlay
+              className="w-full h-full"
+              src={video.videoUrl}
+            />
+          )}
         </div>
 
         <h1 className="text-white text-xl font-semibold mb-4">{video.title}</h1>
