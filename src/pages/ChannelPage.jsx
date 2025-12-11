@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import Swal from "sweetalert2";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 import { AuthContext } from "../context/AuthContext";
@@ -57,37 +58,83 @@ const ChannelPage = () => {
 
   const handleCreateChannel = async (e) => {
     e.preventDefault();
+
     try {
       await axios.post("http://localhost:5000/api/channels", channelForm);
+
+      Swal.fire({
+        icon: "success",
+        title: "Channel Created!",
+        text: "Your channel has been successfully created.",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+
       setShowCreateChannel(false);
-      setChannelForm({ channelName: "", description: "", channelBanner: "" });
+      setChannelForm({
+        channelName: "",
+        description: "",
+        channelBanner: "",
+      });
+
       fetchUserChannels();
     } catch (error) {
       console.error("Error creating channel:", error);
-      alert("Failed to create channel");
+
+      Swal.fire({
+        icon: "error",
+        title: "Failed!",
+        text: "Failed to create channel. Please try again.",
+      });
     }
   };
 
   const handleCreateVideo = async (e) => {
     e.preventDefault();
+
     if (!channel) {
-      alert("Please create a channel first");
+      Swal.fire({
+        icon: "warning",
+        title: "No Channel Found",
+        text: "Please create a channel first!",
+        confirmButtonText: "OK",
+      });
       return;
     }
 
     try {
       if (editingVideo) {
+        // UPDATE video
         await axios.put(
           `http://localhost:5000/api/videos/${editingVideo._id}`,
           videoForm
         );
+
+        Swal.fire({
+          icon: "success",
+          title: "Video Updated!",
+          text: "Your video has been successfully updated.",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+
         setEditingVideo(null);
       } else {
+        // CREATE video
         await axios.post("http://localhost:5000/api/videos", {
           ...videoForm,
           channelId: channel._id,
         });
+
+        Swal.fire({
+          icon: "success",
+          title: "Video Created!",
+          text: "Your new video has been uploaded successfully.",
+          timer: 1500,
+          showConfirmButton: false,
+        });
       }
+
       setShowCreateVideo(false);
       setVideoForm({
         title: "",
@@ -96,35 +143,87 @@ const ChannelPage = () => {
         thumbnailUrl: "",
         category: "Technology",
       });
+
       fetchUserChannels();
     } catch (error) {
       console.error("Error saving video:", error);
-      alert("Failed to save video");
+
+      Swal.fire({
+        icon: "error",
+        title: "Save Failed",
+        text: "Something went wrong while saving the video.",
+        confirmButtonText: "Try Again",
+      });
     }
   };
 
   const handleEditVideo = (video) => {
-    setEditingVideo(video);
-    setVideoForm({
-      title: video.title,
-      description: video.description,
-      videoUrl: video.videoUrl,
-      thumbnailUrl: video.thumbnailUrl,
-      category: video.category,
+    Swal.fire({
+      title: "Edit Video?",
+      text: "Do you want to edit this video?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, edit",
+      cancelButtonText: "Cancel",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        setEditingVideo(video);
+        setVideoForm({
+          title: video.title,
+          description: video.description,
+          videoUrl: video.videoUrl,
+          thumbnailUrl: video.thumbnailUrl,
+          category: video.category,
+        });
+        setShowCreateVideo(true);
+
+        Swal.fire({
+          icon: "info",
+          title: "Editing Mode",
+          text: "You can now edit your video details.",
+          timer: 1200,
+          showConfirmButton: false,
+        });
+      }
     });
-    setShowCreateVideo(true);
   };
 
   const handleDeleteVideo = async (videoId) => {
-    if (!window.confirm("Are you sure you want to delete this video?")) return;
+    Swal.fire({
+      title: "Are you sure?",
+      text: "This video will be permanently deleted!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await axios.delete(`http://localhost:5000/api/videos/${videoId}`);
 
-    try {
-      await axios.delete(`http://localhost:5000/api/videos/${videoId}`);
-      fetchUserChannels();
-    } catch (error) {
-      console.error("Error deleting video:", error);
-      alert("Failed to delete video");
-    }
+          Swal.fire({
+            icon: "success",
+            title: "Deleted!",
+            text: "The video has been deleted.",
+            timer: 1500,
+            showConfirmButton: false,
+          });
+
+          fetchUserChannels(); // refresh UI
+        } catch (error) {
+          console.error("Error deleting video:", error);
+
+          Swal.fire({
+            icon: "error",
+            title: "Failed",
+            text: "Failed to delete video. Please try again.",
+          });
+        }
+      }
+    });
   };
 
   if (!user) {
@@ -264,7 +363,7 @@ const ChannelPage = () => {
                       <div className="flex gap-4 pt-4">
                         <button
                           type="submit"
-                          className="flex-1 bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                          className="flex-1 cursor-pointer bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg font-semibold transition-colors"
                         >
                           {editingVideo ? "Update" : "Upload"}
                         </button>
@@ -274,7 +373,7 @@ const ChannelPage = () => {
                             setShowCreateVideo(false);
                             setEditingVideo(null);
                           }}
-                          className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                          className="flex-1 cursor-pointer bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg font-semibold transition-colors"
                         >
                           Cancel
                         </button>
@@ -309,13 +408,13 @@ const ChannelPage = () => {
                           <div className="flex gap-2">
                             <button
                               onClick={() => handleEditVideo(video)}
-                              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-medium transition-colors"
+                              className="flex-1 cursor-pointer bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-medium transition-colors"
                             >
                               Edit
                             </button>
                             <button
                               onClick={() => handleDeleteVideo(video._id)}
-                              className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg text-sm font-medium transition-colors"
+                              className="flex-1 cursor-pointer bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg text-sm font-medium transition-colors"
                             >
                               Delete
                             </button>
@@ -339,7 +438,7 @@ const ChannelPage = () => {
                 </h2>
                 <button
                   onClick={() => setShowCreateChannel(true)}
-                  className="bg-red-600 hover:bg-red-700 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors"
+                  className="bg-red-600 cursor-pointer hover:bg-red-700 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors"
                 >
                   Create Channel
                 </button>
@@ -355,7 +454,7 @@ const ChannelPage = () => {
                     className="bg-gray-800 rounded-lg p-8 w-full max-w-2xl"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <h2 className="text-2xl font-bold text-white mb-6">
+                    <h2 className="text-2xl cursor-pointer font-bold text-white mb-6">
                       Create Your Channel
                     </h2>
                     <form onSubmit={handleCreateChannel} className="space-y-4">
@@ -398,14 +497,14 @@ const ChannelPage = () => {
                       <div className="flex gap-4 pt-4">
                         <button
                           type="submit"
-                          className="flex-1 bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                          className="flex-1 bg-red-600 cursor-pointer hover:bg-red-700 text-white py-3 rounded-lg font-semibold transition-colors"
                         >
                           Create
                         </button>
                         <button
                           type="button"
                           onClick={() => setShowCreateChannel(false)}
-                          className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                          className="flex-1 bg-gray-600 hover:bg-gray-700 cursor-pointer text-white py-3 rounded-lg font-semibold transition-colors"
                         >
                           Cancel
                         </button>
