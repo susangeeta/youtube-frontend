@@ -44,7 +44,7 @@ UI Features
 
 1. Clone the Repository
 
-frontend-
+frontend-https://github.com/susangeeta/youtube-frontend.git
 backend-https://github.com/susangeeta/youtube-backend.git
 
 2. Install Backend Dependencies
@@ -56,5 +56,5 @@ backend-https://github.com/susangeeta/youtube-backend.git
    npm run dev
 
 4. github link
-   frontend-
+   frontend-https://github.com/susangeeta/youtube-frontend
    backend-https://github.com/susangeeta/youtube-backend
