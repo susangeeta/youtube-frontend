@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useState } from "react";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 
 const Register = () => {
@@ -11,6 +12,8 @@ const Register = () => {
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -137,47 +140,58 @@ const Register = () => {
             />
           </div>
 
-          <div className="flex flex-col gap-2">
-            <label
-              htmlFor="password"
-              className="text-sm text-white font-medium"
-            >
-              Password
-            </label>
+          <div className="relative">
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               id="password"
               name="password"
               value={formData.password}
               onChange={handleChange}
               placeholder="Create a password"
-              className="px-3 py-3 bg-dark-primary border border-[#3f3f3f] rounded-lg text-white text-sm outline-none focus:border-blue-500 transition-colors"
+              className="px-3 py-3 w-full bg-dark-primary border border-[#3f3f3f] rounded-lg text-white text-sm outline-none focus:border-blue-500 transition-colors"
               required
             />
+
+            <span
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 cursor-pointer text-lg"
+            >
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
+            </span>
           </div>
 
           <div className="flex flex-col gap-2">
             <label
               htmlFor="confirmPassword"
-              className="text- text-white font-medium"
+              className="text-sm text-white font-medium"
             >
               Confirm Password
             </label>
-            <input
-              type="password"
-              id="confirmPassword"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              placeholder="Confirm your password"
-              className="px-3 py-3 bg-dark-primary border border-[#3f3f3f] rounded-lg text-white text-sm outline-none focus:border-blue-500 transition-colors"
-              required
-            />
+
+            <div className="relative">
+              <input
+                type={showConfirmPassword ? "text" : "password"}
+                id="confirmPassword"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                placeholder="Confirm your password"
+                className="px-3 py-3 w-full bg-dark-primary border border-[#3f3f3f] rounded-lg text-white text-sm outline-none focus:border-blue-500 transition-colors"
+                required
+              />
+
+              <span
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 cursor-pointer text-lg"
+              >
+                {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+              </span>
+            </div>
           </div>
 
           <button
             type="submit"
-            className="py-3 bg-blue-500 hover:bg-blue-600 rounded-lg text-white text-base font-medium transition-colors"
+            className="py-3 cursor-pointer bg-blue-500  hover:bg-blue-600 rounded-lg text-white text-base font-medium transition-colors"
           >
             Sign Up
           </button>
@@ -188,7 +202,7 @@ const Register = () => {
             Already have an account?{" "}
             <Link
               to="/login"
-              className="text-blue-500 no-underline font-medium hover:underline"
+              className="text-blue-500 no-underline cursor-pointer    font-medium hover:underline"
             >
               Log In
             </Link>
