@@ -58,3 +58,15 @@ backend-https://github.com/susangeeta/youtube-backend.git
 4. github link
    frontend-https://github.com/susangeeta/youtube-frontend
    backend-https://github.com/susangeeta/youtube-backend
+
+Login User
+
+{
+"email": "john@example.com",
+"password": "123456"
+}
+
+{
+"email": "sangeeta@gmail.com",
+"password": "12345678"
+}
